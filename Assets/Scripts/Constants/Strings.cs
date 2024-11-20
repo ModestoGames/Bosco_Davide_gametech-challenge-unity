@@ -3,11 +3,19 @@ public static class Strings
 {
     public static class Permissions
     {
-        public static string NotificationPermission = "android.permission.POST_NOTIFICATIONS";
+        public const string NotificationPermission = "android.permission.POST_NOTIFICATIONS";
     }
 
     public static class PlayerPrefs
     {
-        public static string HowMayTimesPermissionAsked;
+        public const string HowMayTimesPermissionAsked = "PermissionAsked";
     }
+
+    public static class AnimatorKeys
+    {
+        public static string Show = "Show";
+        public static string Hide = "Hide";
+        public static string Visible = "Visible";
+    }
+
 }

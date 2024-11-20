@@ -7,6 +7,5 @@ namespace com.modesto.notificationhandler
         PrePrompt,
         NoPermission,
         Main,
-        NotificationDetailScreen
     }
 }

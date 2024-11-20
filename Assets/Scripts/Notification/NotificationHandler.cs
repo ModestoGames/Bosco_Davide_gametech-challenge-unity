@@ -7,7 +7,7 @@ using UnityEngine;
 
 public class NotificationHandler : AppStateListener
 {
-    [SerializeField] private TextMeshProUGUI _text;
+    [SerializeField] private NotificationDetail _notificationDetail;
     [Range(1, 5)]
     [SerializeField] private int _notificationNumber = 5;
     [Range(1, 10)]
@@ -38,8 +38,16 @@ public class NotificationHandler : AppStateListener
     {
         if (!pauseStatus) // L'app torna in foreground
         {
-            CheckForNotificationData();
+            StartCoroutine(DebugCheckNotificationData());
+            //CheckForNotificationData();
         }
+    }
+
+    private IEnumerator DebugCheckNotificationData()
+    {
+        yield return new WaitForSeconds(5.0f);
+        Debug.Log("End coroutine");
+        CheckForNotificationData();
     }
 
     public void ScheduleNotification()
@@ -71,44 +79,49 @@ public class NotificationHandler : AppStateListener
     {
         if (Application.platform == RuntimePlatform.Android)
         {
-            using (AndroidJavaClass unityPlayer = new AndroidJavaClass("com.unity3d.player.UnityPlayer"))
-            using (AndroidJavaObject currentActivity = unityPlayer.GetStatic<AndroidJavaObject>("currentActivity"))
-            using (AndroidJavaObject intent = currentActivity.Call<AndroidJavaObject>("getIntent"))
+            Debug.Log("Check for notification");
+            using (AndroidJavaObject intent = _currentActivity.Call<AndroidJavaObject>("getIntent"))
             {
+                Debug.Log("Get current intent");
                 if (intent.Call<bool>("hasExtra", "notification_id"))
                 {
+                    Debug.Log("intent has extra");
                     // Leggi i dati dall'intent
                     int notificationId = intent.Call<int>("getIntExtra", "notification_id", -1);
                     string title = intent.Call<string>("getStringExtra", "notification_title");
                     string text = intent.Call<string>("getStringExtra", "notification_text");
-                    string unityMessage = intent.Call<string>("getStringExtra", "unity_message");
+                    string packageName = intent.Call<string>("getStringExtra", "package_name");
+                    string iconName = intent.Call<string>("getStringExtra", "icon_path");
                     long timestamp = intent.Call<long>("getLongExtra", "notification_timestamp", 0L);
 
                     // Gestisci i dati della notifica
-                    HandleNotificationData(notificationId, title, text, unityMessage, timestamp);
+                    HandleNotificationData(title, text, packageName, iconName);
 
                     // Pulisci l'intent per evitare di processare pi� volte gli stessi dati
                     intent.Call("removeExtra", "notification_id");
                     intent.Call("removeExtra", "notification_title");
                     intent.Call("removeExtra", "notification_text");
-                    intent.Call("removeExtra", "unity_message");
+                    intent.Call("removeExtra", "package_name");
+                    intent.Call("removeExtra", "icon_path");
                     intent.Call("removeExtra", "notification_timestamp");
                 }
             }
         }
     }
 
-    private void HandleNotificationData(int id, string title, string text, string unityMessage, long timestamp)
+    private void HandleNotificationData(string title, string text, string packageName, string iconName)
     {
-        StringBuilder sb = new StringBuilder();
-
-        sb.Append($"Notifica ricevuta - ID: {id}");
-        sb.Append($"Titolo: {title}");
-        sb.Append($"Testo: {text}");
-        sb.Append($"Messaggio Unity: {unityMessage}");
-        sb.Append($"Timestamp: {timestamp}");
-
-        _text.text = sb.ToString();
+        try
+        {
+            Debug.Log("Try to create sprite");
+            Sprite sprite = Utils.GetSprite(_currentActivity, packageName, iconName);
+            _notificationDetail.ShowNotificationDetails(title, text, sprite);
+        }
+        catch (Exception e)
+        {
+            Debug.Log("Unable to create sprite");
+            _notificationDetail.ShowNotificationDetails(title, text, null);
+        }
     }
 
 }
