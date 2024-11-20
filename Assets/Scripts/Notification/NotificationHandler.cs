@@ -14,6 +14,7 @@ public class NotificationHandler : AppStateListener
     [SerializeField] private int _interval = 1;
 
     private AndroidJavaObject _currentActivity;
+    private AndroidJavaObject _notificationHandler;
 
     protected override IEnumerator OnInitialize()
     {
@@ -21,6 +22,7 @@ public class NotificationHandler : AppStateListener
         using (var unityPlayer = new AndroidJavaClass("com.unity3d.player.UnityPlayer"))
         {
             _currentActivity = unityPlayer.GetStatic<AndroidJavaObject>("currentActivity");
+            _notificationHandler = new AndroidJavaObject("com.modesto.notification_module.LocalNotificationsService", _currentActivity);
         }
 #endif
         yield return null;
@@ -40,29 +42,15 @@ public class NotificationHandler : AppStateListener
         }
     }
 
-    public void Toast()
-    {
-        using (var notificationHelper = new AndroidJavaObject("com.modesto.notification_module.LocalNotificationsService", _currentActivity))
-        {
-            notificationHelper.Call("toast", "Test");
-        }
-    }
-
     public void ScheduleNotification()
     {
         Debug.Log("Try schedule notification");
         try
         {
-            //var notificationHelper = new AndroidJavaObject("com.modesto.notification_module.LocalNotificationsService", _currentActivity);
-
             for (int i = 1; i <= _notificationNumber; i++)
             {
-                using (var notificationHelper = new AndroidJavaObject("com.modesto.notification_module.LocalNotificationsService", _currentActivity))
-                {
-                    int delay = i * _interval;
-                    Debug.Log("id and delay " + i + " " + delay);
-                    notificationHelper.Call("scheduleNotification", i, delay);
-                }
+                int delay = i * _interval;
+                _notificationHandler.Call("scheduleNotification", i, delay);
             }
 
         }
@@ -72,6 +60,11 @@ public class NotificationHandler : AppStateListener
             Debug.Log(e.InnerException);
             Debug.Log(e.StackTrace);
         }
+    }
+
+    public void DeleteAllScheduledNotification()
+    {
+        _notificationHandler.Call("deleteAllScheduledNotifications");
     }
 
     private void CheckForNotificationData()

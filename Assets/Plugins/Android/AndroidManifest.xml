@@ -4,8 +4,7 @@
     package="com.unity3d.player"
     xmlns:tools="http://schemas.android.com/tools">
 	<uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
-    <application>
-		<!--<uses-library android:name="androidx.work.WorkManager" android:required="true"/>-->
+    <application android:allowBackup="false">
         <activity android:name="com.unity3d.player.UnityPlayerActivity"
                   android:theme="@style/UnityThemeSelector">
             <intent-filter>
