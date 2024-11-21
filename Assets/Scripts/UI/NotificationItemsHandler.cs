@@ -78,6 +78,27 @@ public class NotificationItemsHandler : MonoBehaviour
             Disable();
     }
 
+    public void SwitchItems(int item1Id, int item2Id)
+    {
+        item1Id--; item2Id-- ;
+        int index1 = _items[item1Id].transform.GetSiblingIndex();
+        Debug.Log("Index 1 is " + index1);
+        int index2 = _items[item2Id].transform.GetSiblingIndex();
+        Debug.Log("Index 2 is " + index2);
+        _items[item1Id].transform.SetSiblingIndex(index2);
+        _items[item2Id].transform.SetSiblingIndex(index1);
+
+        //switch schedulation times
+        var tempSchedulationTime = _items[item1Id].SchedulationTime;
+        _items[item1Id].SchedulationTime = _items[item2Id].SchedulationTime;
+        _items[item2Id].SchedulationTime = tempSchedulationTime;
+
+        //switch elements in list
+        var temp = _items[item1Id];
+        _items[item1Id] = _items[item2Id];
+        _items[item2Id] = temp;
+    }
+
     private void Disable()
     {
         _items = new List<NotificationItem>();

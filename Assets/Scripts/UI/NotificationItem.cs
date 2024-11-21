@@ -4,6 +4,11 @@ using UnityEngine;
 public class NotificationItem : MonoBehaviour
 {
     public int Id => _notification.Id;
+    public long SchedulationTime
+    {
+        get { return _notification.SchedulationTime; }
+        set { _notification.SchedulationTime = value; }
+    }
 
     [SerializeField] private TextMeshProUGUI _name;
     [SerializeField] private TextMeshProUGUI _time;

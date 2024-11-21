@@ -115,12 +115,15 @@ public class NotificationHandler : AppStateListener
                     intent.Call("removeExtra", "notification_id");
                     intent.Call("removeExtra", "notification_title");
                     intent.Call("removeExtra", "notification_text");
-                    intent.Call("removeExtra", "package_name");
-                    intent.Call("removeExtra", "icon_path");
-                    intent.Call("removeExtra", "notification_timestamp");
                 }
             }
         }
+    }
+
+    public void TestSwitchNotification()
+    {
+        _notificationHandler.Call("switchNotificationSchedule", 1, 4);
+        _notificationList.SwitchItems(1, 4);
     }
 
     private void HandleNotificationData(int id, string text, string title)
