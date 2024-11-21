@@ -35,7 +35,6 @@ public class NotificationItem : MonoBehaviour
 
     public void RemoveItem()
     {
-        Debug.Log($"Notification with Id: {_notification.Id}");
         _handler.RemoveItem(this);
         _animator.SetTrigger(Strings.AnimatorKeys.Hide);
     }

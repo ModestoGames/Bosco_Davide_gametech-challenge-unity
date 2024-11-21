@@ -101,20 +101,12 @@ public class NotificationHandler : AppStateListener
             Debug.Log("Check for notification");
             using (AndroidJavaObject intent = _currentActivity.Call<AndroidJavaObject>("getIntent"))
             {
-                Debug.Log("Get current intent");
                 if (intent.Call<bool>("hasExtra", "notification_id"))
                 {
-                    Debug.Log("intent has extra");
                     // Leggi i dati dall'intent
                     int notificationId = intent.Call<int>("getIntExtra", "notification_id", -1);
                     string title = intent.Call<string>("getStringExtra", "notification_title");
                     string text = intent.Call<string>("getStringExtra", "notification_text");
-                    string packageName = intent.Call<string>("getStringExtra", "package_name");
-                    string iconName = intent.Call<string>("getStringExtra", "resource_name");
-                    long timestamp = intent.Call<long>("getLongExtra", "notification_timestamp", 0L);
-
-                    Debug.Log("Notification id is " + notificationId);
-                    Debug.Log("Icon name is " + iconName);
 
                     // Gestisci i dati della notifica
                     HandleNotificationData(notificationId, text, title);

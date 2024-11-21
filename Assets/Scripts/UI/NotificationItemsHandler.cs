@@ -55,7 +55,6 @@ public class NotificationItemsHandler : MonoBehaviour
 
     public void AddItem(int id, NotificationDTO notificationDto)
     {
-        Debug.Log("id:" + id + " : " + notificationDto);
         var item = Instantiate(_itemPrefab, _itemContainer);
         item.Initialize(notificationDto, this);
         _items.Add(item);
@@ -65,10 +64,7 @@ public class NotificationItemsHandler : MonoBehaviour
     public void RemoveAll()
     {
         for(int i = _items.Count -1; i >= 0; i--)
-        {
-            Debug.Log("Remove item " + i);
             _items[i].RemoveItem();
-        }
 
         Disable();
     }
