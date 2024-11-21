@@ -47,8 +47,14 @@ public class NotificationHandler : AppStateListener
     public void ScheduleNotification()
     {
         Debug.Log("Try schedule notification");
+#if UNITY_EDITOR
+        DebugScheduleNotifications();
+#else
+
+
         try
         {
+            _notificationList.Initialize(_notificationHandler);
             for (int i = 1; i <= _notificationNumber; i++)
             {
                 int delay = i * _interval;
@@ -65,11 +71,27 @@ public class NotificationHandler : AppStateListener
             Debug.Log(e.InnerException);
             Debug.Log(e.StackTrace);
         }
+#endif
     }
 
-    public void DeleteAllScheduledNotification()
+    private void DebugScheduleNotifications()
     {
-        _notificationHandler.Call("deleteAllScheduledNotifications");
+        for (int i = 1; i <= _notificationNumber; i++)
+        {
+            int delay = i * _interval;
+            //the java method return the dto for the scheduled notification
+            var notificationDto = new NotificationDTO(i)
+            {
+                WorkUUID = "abcdef" + i,
+                Status = NotificationStatus.Pending,
+                Title = "Title " + i,
+                Text = "Text " + i,
+                CreationTime = i,
+                SchedulationTime = i * (60 * 1000)
+            };
+            _notificationList.AddItem(i, notificationDto);
+            //_debugger.StartDebugging(_notificationHandler);
+        }
     }
 
     private void CheckForNotificationData()

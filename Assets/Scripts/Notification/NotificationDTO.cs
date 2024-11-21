@@ -21,9 +21,13 @@ public class NotificationDTO
         return $"{minutes:D1}:{remainingSeconds:D2}";
     }
 
-    public NotificationDTO(int id, AndroidJavaObject androidDto)
+    public NotificationDTO(int id)
     {
         Id = id;
+    }
+
+    public NotificationDTO(int id, AndroidJavaObject androidDto) : this(id)
+    {
         WorkUUID = androidDto.Call<string>("getUUIDToString");
         Status = (NotificationStatus)androidDto.Call<int>("getStatus");
         Title = androidDto.Call<string>("getTitle");

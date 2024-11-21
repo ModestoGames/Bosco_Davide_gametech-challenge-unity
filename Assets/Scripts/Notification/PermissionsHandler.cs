@@ -9,9 +9,24 @@ public class PermissionsHandler : GameInitBehaviour
     public bool CanRequestPermission => _numberOfPermissionRequests < _maxPermissionRequestsNumber;
 
     [SerializeField] private AppStateManager _appStateManager;
+    [SerializeField] private Panel _noPermissionPanel;
 
     [Header("Settings")]
     [SerializeField] private int _maxPermissionRequestsNumber;
+
+    private bool _isGoingToSettings;
+
+    private void OnApplicationFocus(bool focus)
+    {
+        if(focus)
+        {
+            if(_isGoingToSettings)
+            {
+                _isGoingToSettings = false;
+                AskForPermission();
+            }
+        }
+    }
 
     //handle number of permissions request through playerprefs
     private int _numberOfPermissionRequests
@@ -38,7 +53,10 @@ public class PermissionsHandler : GameInitBehaviour
     private void InitMaxPermissionRequestsNumber()
     {
         if (!PlayerPrefs.HasKey(Strings.PlayerPrefs.HowMayTimesPermissionAsked))
+        {
             _numberOfPermissionRequests = 0;
+            Debug.Log("Number of permission request is " + _numberOfPermissionRequests);
+        }
     }
 
     public void CheckForPermissions()
@@ -92,6 +110,7 @@ public class PermissionsHandler : GameInitBehaviour
 
     public void GoToAppSettings()
     {
+        _isGoingToSettings = true;
         using var unityClass = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
         using AndroidJavaObject currentActivityObject = unityClass.GetStatic<AndroidJavaObject>("currentActivity");
         string packageName = currentActivityObject.Call<string>("getPackageName");
@@ -107,6 +126,9 @@ public class PermissionsHandler : GameInitBehaviour
     {
         Debug.Log("Permission callback - permission denied");
         _appStateManager.ChangeApplicationState(ApplicationState.NoPermission);
+
+        if(_numberOfPermissionRequests == _maxPermissionRequestsNumber)
+            _noPermissionPanel.ForceTurnOffSecondaryButton();
     }
 
     private void PermissionCallbacks_PermissionGranted(string permission)
