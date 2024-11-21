@@ -28,6 +28,7 @@ public class GameInitiator : MonoBehaviour
             yield return gameInitBehaviour.Initialize();
         }
 
+        yield return new WaitForSeconds(0.5f);
         _onInitializationComplete?.Invoke();
     }
 }

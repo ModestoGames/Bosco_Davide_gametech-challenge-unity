@@ -8,6 +8,8 @@ using UnityEngine;
 public class NotificationHandler : AppStateListener
 {
     [SerializeField] private NotificationDetail _notificationDetail;
+    [SerializeField] private NotificationsDebugger _debugger;
+    [SerializeField] private NotificationItemsHandler _notificationList;
     [Range(1, 5)]
     [SerializeField] private int _notificationNumber = 5;
     [Range(1, 10)]
@@ -50,7 +52,10 @@ public class NotificationHandler : AppStateListener
             for (int i = 1; i <= _notificationNumber; i++)
             {
                 int delay = i * _interval;
-                _notificationHandler.Call("scheduleNotification", i, delay);
+                //the java method return the dto for the scheduled notification
+                var notificationDto = _notificationHandler.Call<AndroidJavaObject>("scheduleNotification", i, delay);
+                _notificationList.AddItem(i, notificationDto);
+                //_debugger.StartDebugging(_notificationHandler);
             }
 
         }

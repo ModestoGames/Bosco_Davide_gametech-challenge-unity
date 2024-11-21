@@ -8,4 +8,11 @@ namespace com.modesto.notificationhandler
         NoPermission,
         Main,
     }
+
+    public enum NotificationStatus
+    {
+        Pending,
+        Sent,
+        Deleted
+    }
 }
