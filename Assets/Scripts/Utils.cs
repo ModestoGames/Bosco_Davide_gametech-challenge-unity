@@ -1,3 +1,6 @@
+using System;
+using System.IO;
+using System.Text;
 using UnityEngine;
 
 public static class Utils
@@ -11,41 +14,18 @@ public static class Utils
         return sdkLevel;
     }
 
-    public static Sprite GetSprite(AndroidJavaObject currentActivity, string packageName, string resourceName)
+    public static Sprite GetSprite(AndroidJavaObject currentActivity, int id)
     {
-        AndroidJavaObject resources = currentActivity.Call<AndroidJavaObject>("getResources");
-        int resourceId = resources.Call<int>("getIdentifier", resourceName, "drawable", packageName);
+        var androidUtils = new AndroidJavaClass("com.modesto.notification_module.Utils");
+        var size = androidUtils.CallStatic<int>("getBitmapSize", currentActivity, id);
+        var pixels = androidUtils.CallStatic<int[]>("getIconPixel", currentActivity, id);
 
-        if (resourceId != 0)
-        {
-            Debug.Log("Risorsa trovata con ID: " + resourceId);
-        }
-        else
-        {
-            Debug.LogError("Risorsa non trovata");
-            return null;
-        }
-
-        AndroidJavaObject bitmap = null;
         try
         {
-            // Carica il bitmap
-            AndroidJavaClass bitmapFactory = new AndroidJavaClass("android.graphics.BitmapFactory");
-            bitmap = bitmapFactory.CallStatic<AndroidJavaObject>("decodeResource", resources, resourceId);
+            Texture2D texture = new Texture2D(size, size);
+            Color32[] colors = new Color32[size * size];
 
-            // Ottieni le dimensioni del bitmap
-            int width = bitmap.Call<int>("getWidth");
-            int height = bitmap.Call<int>("getHeight");
-
-            // Crea array di byte per i pixel
-            int[] pixels = new int[width * height];
-            bitmap.Call("getPixels", pixels, 0, width, 0, 0, width, height);
-
-            // Crea texture Unity
-            Texture2D texture = new Texture2D(width, height, TextureFormat.RGBA32, false);
-            Color32[] colors = new Color32[width * height];
-
-            // Converti i pixel Android ARGB in formato Unity RGBA
+            //// Converti i pixel Android ARGB in formato Unity RGBA
             for (int i = 0; i < pixels.Length; i++)
             {
                 int pixel = pixels[i];
@@ -59,23 +39,65 @@ public static class Utils
             texture.SetPixels32(colors);
             texture.Apply();
 
-            Rect rect = new Rect(0.0f, 0.0f, texture.width, texture.height);
+            Debug.Log($"Texture caricata. Dimensioni: {texture.width}x{texture.height}");
+
+            Rect rect = new Rect(0, 0, texture.width, texture.height);
             Vector2 pivot = new Vector2(0.5f, 0.5f);
 
+            Debug.Log("Crea sprite");
+
             Sprite sprite = Sprite.Create(texture, rect, pivot);
+
+            pixels = null;
+            colors = null;
+
             return sprite;
+
         }
         catch (System.Exception e)
         {
             Debug.LogError("Errore nella conversione dell'immagine: " + e.Message);
             return null;
         }
-        finally
+    }
+
+    static void PrintArrayValues(int[] array)
+    {
+        StringBuilder sb = new StringBuilder();
+        sb.Append("Array values: ");
+
+        for (int i = 0; i < array.Length; i++)
         {
-            if (bitmap != null)
+            sb.Append(array[i]);
+
+            // Aggiunge una virgola tra i valori, tranne che per l'ultimo
+            if (i < array.Length - 1)
             {
-                bitmap.Call("recycle");
+                sb.Append(", ");
             }
         }
+
+        // Stampa il risultato finale
+        Debug.Log(sb.ToString());
+    }
+
+    static void PrintArrayValues(byte[] array)
+    {
+        StringBuilder sb = new StringBuilder();
+        sb.Append("Array values: ");
+
+        for (int i = 0; i < array.Length; i++)
+        {
+            sb.Append(array[i]);
+
+            // Aggiunge una virgola tra i valori, tranne che per l'ultimo
+            if (i < array.Length - 1)
+            {
+                sb.Append(", ");
+            }
+        }
+
+        // Stampa il risultato finale
+        Debug.Log(sb.ToString());
     }
 }

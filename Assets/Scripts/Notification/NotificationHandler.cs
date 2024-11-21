@@ -30,24 +30,16 @@ public class NotificationHandler : AppStateListener
 
     public override void AppStateChanged(ApplicationState previousState, ApplicationState currentState)
     {
-        if (currentState == ApplicationState.Main)
-            CheckForNotificationData();
+        //if (currentState == ApplicationState.Main)
+        //    StartCoroutine(DebugCheckNotificationData());
     }
 
     void OnApplicationPause(bool pauseStatus)
     {
         if (!pauseStatus) // L'app torna in foreground
         {
-            StartCoroutine(DebugCheckNotificationData());
-            //CheckForNotificationData();
+            CheckForNotificationData();
         }
-    }
-
-    private IEnumerator DebugCheckNotificationData()
-    {
-        yield return new WaitForSeconds(5.0f);
-        Debug.Log("End coroutine");
-        CheckForNotificationData();
     }
 
     public void ScheduleNotification()
@@ -91,11 +83,14 @@ public class NotificationHandler : AppStateListener
                     string title = intent.Call<string>("getStringExtra", "notification_title");
                     string text = intent.Call<string>("getStringExtra", "notification_text");
                     string packageName = intent.Call<string>("getStringExtra", "package_name");
-                    string iconName = intent.Call<string>("getStringExtra", "icon_path");
+                    string iconName = intent.Call<string>("getStringExtra", "resource_name");
                     long timestamp = intent.Call<long>("getLongExtra", "notification_timestamp", 0L);
 
+                    Debug.Log("Notification id is " + notificationId);
+                    Debug.Log("Icon name is " + iconName);
+
                     // Gestisci i dati della notifica
-                    HandleNotificationData(title, text, packageName, iconName);
+                    HandleNotificationData(notificationId, text, title);
 
                     // Pulisci l'intent per evitare di processare pi� volte gli stessi dati
                     intent.Call("removeExtra", "notification_id");
@@ -109,12 +104,12 @@ public class NotificationHandler : AppStateListener
         }
     }
 
-    private void HandleNotificationData(string title, string text, string packageName, string iconName)
+    private void HandleNotificationData(int id, string text, string title)
     {
         try
         {
             Debug.Log("Try to create sprite");
-            Sprite sprite = Utils.GetSprite(_currentActivity, packageName, iconName);
+            Sprite sprite = Utils.GetSprite(_currentActivity, id);
             _notificationDetail.ShowNotificationDetails(title, text, sprite);
         }
         catch (Exception e)
@@ -123,5 +118,4 @@ public class NotificationHandler : AppStateListener
             _notificationDetail.ShowNotificationDetails(title, text, null);
         }
     }
-
 }

@@ -4,7 +4,13 @@ using UnityEngine.Events;
 
 public class GameInitiator : MonoBehaviour
 {
+
+    [Header("Settings")]
     [SerializeField] private bool _enableLog;
+    [Range(30, 60)]
+    [SerializeField] private int _fps;
+
+    [Header("Components")]
     [SerializeField] private GameInitBehaviour[] _gameInitBehaviours;
 
     [SerializeField] private UnityEvent _onInitializationComplete;
