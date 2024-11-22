@@ -83,13 +83,13 @@ public class NotificationItemsHandler : MonoBehaviour
     }
 
     //this method remove a single notification from Unity and then from Android
-    public void RemoveItem(NotificationItem item)
+    public void RemoveItem(NotificationItem item, bool alsoRemoveScheduledNotification = true)
     {
         _items.Remove(item);
 #if !UNITY_EDITOR
-        _notificationService.Call("deleteScheduledNotification", item.Id);
+        if(alsoRemoveScheduledNotification)
+            _notificationService.Call("deleteScheduledNotification", item.Id);
 #endif
-
         if (_items.Count <= 0)
             StartCoroutine(DisableWithDelay());
     }
@@ -170,9 +170,37 @@ public class NotificationItemsHandler : MonoBehaviour
             var oldSorting = _oldSorting.ToArray();
             var newSorting = _newSorting.ToArray();
 
+            Debug.Log(oldSorting);
+            Debug.Log(newSorting);
+
             _notificationService.Call("setOldSorting", oldSorting);
             _notificationService.Call("setNewSorting", newSorting);
             _notificationHandler.RefreshNotifications();
         }
+    }
+
+    public void PrintArray(List<int> _newSorting)
+    {
+        // Controlla se _newSorting è vuoto
+        if (_newSorting == null || _newSorting.Count == 0)
+        {
+            Debug.Log("New sorting array is empty or null.");
+            return;
+        }
+
+        // Costruisce una stringa con tutti gli ID
+        string sortingOutput = "New Sorting: [";
+        for (int i = 0; i < _newSorting.Count; i++)
+        {
+            sortingOutput += _newSorting[i];
+            if (i < _newSorting.Count - 1)
+            {
+                sortingOutput += ", ";
+            }
+        }
+        sortingOutput += "]";
+
+        // Stampa nel log
+        Debug.Log(sortingOutput);
     }
 }

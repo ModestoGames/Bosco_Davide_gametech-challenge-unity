@@ -39,13 +39,13 @@ public class NotificationItem : MonoBehaviour, IBeginDragHandler, IDragHandler, 
         //check if all time elapsed
         if (_notification.CreationTime >= _notification.SchedulationTime)
         {
-            RemoveItem();
+            RemoveItem(alsoRemoveScheduledNotification: false);
         }
     }
 
-    public void RemoveItem()
+    public void RemoveItem(bool alsoRemoveScheduledNotification = true)
     {
-        _handler.RemoveItem(this);
+        _handler.RemoveItem(this, alsoRemoveScheduledNotification);
         _animator.SetTrigger(Strings.AnimatorKeys.Hide);
     }
 

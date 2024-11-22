@@ -16,6 +16,7 @@ public class NotificationHandler : AppStateListener
     [SerializeField] private int _notificationNumber = 5;
     [Range(1, 10)]
     [SerializeField] private int _interval = 1;
+    [SerializeField] private int _intervalSeconds = 1;
 
     private AndroidJavaObject _currentActivity;
     private AndroidJavaObject _notificationHandler;
@@ -47,7 +48,7 @@ public class NotificationHandler : AppStateListener
     //clear and refresh the current notification status
     public void RefreshNotifications()
     {
-        Debug.Log("Refresh Notification");
+        Debug.Log("#####Refresh Notification");
         var currentNotifications = _notificationHandler.Call<AndroidJavaObject>("getCurrentNotifications");
         Debug.Log(_notificationHandler.Call<string>("getNotificationAsString"));
         int currentNotificationsNumber = currentNotifications.Call<int>("size");
@@ -82,7 +83,8 @@ public class NotificationHandler : AppStateListener
         Debug.Log($"Total notifications added before sorting: {notificationDtos.Count}");
         //reorder the list starting from the nearest scheduled
         notificationDtos = notificationDtos.OrderBy(n => n.DurationInSeconds).ToList();
-
+        foreach (var dto in notificationDtos)
+            Debug.Log("###########" + dto.DurationInSeconds);
         //rebuild the list already in the correct order
         foreach (NotificationDTO notificationDto in notificationDtos)
         {
@@ -114,7 +116,7 @@ public class NotificationHandler : AppStateListener
             _notificationList.Initialize(_notificationHandler);
             for (int i = 1; i <= _notificationNumber; i++)
             {
-                int delay = i * _interval;
+                int delay = i * _intervalSeconds;
                 //the java method return the dto for the scheduled notification
                 var notificationDto = _notificationHandler.Call<AndroidJavaObject>("scheduleNotification", i, delay);
                 _notificationList.AddItem(i, notificationDto);

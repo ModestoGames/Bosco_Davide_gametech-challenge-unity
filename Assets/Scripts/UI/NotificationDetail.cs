@@ -9,13 +9,14 @@ public class NotificationDetail : MonoBehaviour
     [SerializeField] private Image _icon;
     [SerializeField] private Panel _panel;
     [SerializeField] private AudioSource _audioSource;
+    [SerializeField] private AudioClip _clip;
 
     public void ShowNotificationDetails(string title, string body, Sprite iconSprite)
     {
         _title.text = title;
         _body.text = body;
         _icon.sprite = iconSprite;
-        _audioSource.Play();
+        _audioSource.PlayOneShot(_clip);
         _panel.Show();
     }
 }
