@@ -48,8 +48,10 @@ public class NotificationItemsHandler : MonoBehaviour
         {
             var currentSystemTime = _notificationService.Call<long>("getCurrentSystemTime");
 
-            foreach (var item in _items)
-                item.UpdateTime(currentSystemTime);
+            for(int i = 0; i < _items.Count; i++)
+            {
+                _items[i].UpdateTime(currentSystemTime);
+            }
         }
     }
 
@@ -157,9 +159,9 @@ public class NotificationItemsHandler : MonoBehaviour
         LayoutRebuilder.ForceRebuildLayoutImmediate(_itemContainer.GetComponent<RectTransform>());
         Canvas.ForceUpdateCanvases();
 
-        foreach (Transform children in _itemContainer.transform)
+        for(int i = 0; i < _itemContainer.childCount; i++)
         {
-            int id = children.GetComponent<NotificationItem>().Id;
+            int id = _itemContainer.GetChild(i).GetComponent<NotificationItem>().Id;
             _newSorting.Add(id);
         }
 
