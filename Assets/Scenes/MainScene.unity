@@ -669,7 +669,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2616458004891092488, guid: ab3b7f0cd7c79af459d636508baf72d5, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 404.18042
+      value: 400
       objectReference: {fileID: 0}
     - target: {fileID: 2616458004891092488, guid: ab3b7f0cd7c79af459d636508baf72d5, type: 3}
       propertyPath: m_SizeDelta.y
@@ -1918,7 +1918,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2616458004891092488, guid: ab3b7f0cd7c79af459d636508baf72d5, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 404.18042
+      value: 400
       objectReference: {fileID: 0}
     - target: {fileID: 2616458004891092488, guid: ab3b7f0cd7c79af459d636508baf72d5, type: 3}
       propertyPath: m_SizeDelta.y
@@ -1958,7 +1958,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2616458004891092488, guid: ab3b7f0cd7c79af459d636508baf72d5, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 0
+      value: -80
       objectReference: {fileID: 0}
     - target: {fileID: 2616458004891092488, guid: ab3b7f0cd7c79af459d636508baf72d5, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -3443,6 +3443,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _notificationHandler: {fileID: 161702666}
   _scheduleNotificationButton: {fileID: 1528506847}
+  _deleteAllButton: {fileID: 905907879}
   _itemPrefab: {fileID: 5309517353701150749, guid: d7c689cf7e929ae47bc14ff23fdcce96, type: 3}
   _itemContainer: {fileID: 106602419}
   _layoutGroup: {fileID: 106602420}

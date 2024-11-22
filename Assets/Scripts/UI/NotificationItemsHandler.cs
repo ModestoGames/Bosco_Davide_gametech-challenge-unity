@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -6,6 +7,7 @@ public class NotificationItemsHandler : MonoBehaviour
 {
     [SerializeField] private NotificationHandler _notificationHandler;
     [SerializeField] private GameObject _scheduleNotificationButton;
+    [SerializeField] private GameObject _deleteAllButton;
     [SerializeField] private NotificationItem _itemPrefab;
     [SerializeField] private Transform _itemContainer;
     [SerializeField] private VerticalLayoutGroup _layoutGroup;
@@ -75,17 +77,25 @@ public class NotificationItemsHandler : MonoBehaviour
         for (int i = _items.Count - 1; i >= 0; i--)
             _items[i].RemoveItem();
 
-        Disable();
+        StartCoroutine(DisableWithDelay());
     }
 
     //this method remove a single notification from Unity and then from Android
     public void RemoveItem(NotificationItem item)
     {
         _items.Remove(item);
+#if !UNITY_EDITOR
         _notificationService.Call("deleteScheduledNotification", item.Id);
+#endif
 
         if (_items.Count <= 0)
-            Disable();
+            StartCoroutine(DisableWithDelay());
+    }
+
+    private IEnumerator DisableWithDelay()
+    {
+        yield return new WaitForSeconds(0.5f);
+        Disable();
     }
 
     //this method remove notifications only from Unity.
@@ -107,6 +117,7 @@ public class NotificationItemsHandler : MonoBehaviour
     {
         _items = new List<NotificationItem>();
         _scheduleNotificationButton.SetActive(true);
+        _deleteAllButton.SetActive(false);
         gameObject.SetActive(false);
     }
 
@@ -117,9 +128,9 @@ public class NotificationItemsHandler : MonoBehaviour
         _newSorting = new List<int>();
 
         //create the list with the sorting before drag
-        foreach (Transform children in _itemContainer.transform)
+        for(int i = 0; i < _itemContainer.childCount; i++)
         {
-            int id = children.GetComponent<NotificationItem>().Id;
+            int id = _itemContainer.GetChild(i).GetComponent<NotificationItem>().Id;
             _oldSorting.Add(id);
         }
 
@@ -127,7 +138,7 @@ public class NotificationItemsHandler : MonoBehaviour
         _initialSiblingIndex = draggableItemTransformIndex;
         //get the height of a single element in layout
         _listSectionHeight = _itemContainer.GetComponent<RectTransform>().sizeDelta.y / _items.Count;
-        
+
     }
 
     public void OnDragItem(Transform transform, float itemHeight)
@@ -136,8 +147,8 @@ public class NotificationItemsHandler : MonoBehaviour
             .GetComponent<RectTransform>().anchoredPosition.y + _layoutGroup.spacing);
 
         int spaceIndex = Mathf.Clamp((int)(normalizedY / _listSectionHeight), 0, _items.Count);
-        
-        if(transform.GetSiblingIndex() != spaceIndex)
+
+        if (transform.GetSiblingIndex() != spaceIndex)
             transform.SetSiblingIndex(spaceIndex);
     }
 
@@ -158,7 +169,7 @@ public class NotificationItemsHandler : MonoBehaviour
             var newSorting = _newSorting.ToArray();
 
             _notificationService.Call("setOldSorting", oldSorting);
-            _notificationService.Call("setNewSorting", newSorting); 
+            _notificationService.Call("setNewSorting", newSorting);
             _notificationHandler.RefreshNotifications();
         }
     }
