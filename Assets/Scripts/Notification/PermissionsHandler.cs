@@ -9,7 +9,6 @@ public class PermissionsHandler : GameInitBehaviour
     public bool CanRequestPermission => _numberOfPermissionRequests < _maxPermissionRequestsNumber;
 
     [SerializeField] private AppStateManager _appStateManager;
-    [SerializeField] private Panel _noPermissionPanel;
 
     [Header("Settings")]
     [SerializeField] private int _maxPermissionRequestsNumber;
@@ -127,8 +126,12 @@ public class PermissionsHandler : GameInitBehaviour
         Debug.Log("Permission callback - permission denied");
         _appStateManager.ChangeApplicationState(ApplicationState.NoPermission);
 
+        Debug.Log("Number of permission request = " + _numberOfPermissionRequests);
+        Debug.Log("Max permission request = " + _maxPermissionRequestsNumber);
         if(_numberOfPermissionRequests == _maxPermissionRequestsNumber)
-            _noPermissionPanel.ForceTurnOffSecondaryButton();
+        {
+            Debug.Log("Turn off ask again button");
+        }
     }
 
     private void PermissionCallbacks_PermissionGranted(string permission)

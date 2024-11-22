@@ -1,6 +1,9 @@
 ﻿using com.modesto.notificationhandler;
 using System;
 using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using TMPro;
 using UnityEngine;
@@ -8,7 +11,6 @@ using UnityEngine;
 public class NotificationHandler : AppStateListener
 {
     [SerializeField] private NotificationDetail _notificationDetail;
-    [SerializeField] private NotificationsDebugger _debugger;
     [SerializeField] private NotificationItemsHandler _notificationList;
     [Range(1, 5)]
     [SerializeField] private int _notificationNumber = 5;
@@ -32,8 +34,65 @@ public class NotificationHandler : AppStateListener
 
     public override void AppStateChanged(ApplicationState previousState, ApplicationState currentState)
     {
-        //if (currentState == ApplicationState.Main)
-        //    StartCoroutine(DebugCheckNotificationData());
+        if (currentState == ApplicationState.Main)
+        {
+            Debug.Log("GO TO APPLICATION MAIN SO REFRESH");
+#if UNITY_ANDROID && !UNITY_EDITOR
+            RefreshNotifications();
+            CheckForNotificationData();
+#endif
+        }
+    }
+
+    //clear and refresh the current notification status
+    public void RefreshNotifications()
+    {
+        Debug.Log("Refresh Notification");
+        var currentNotifications = _notificationHandler.Call<AndroidJavaObject>("getCurrentNotifications");
+        Debug.Log(_notificationHandler.Call<string>("getNotificationAsString"));
+        int currentNotificationsNumber = currentNotifications.Call<int>("size");
+        Debug.Log($"Number of current notifications: {currentNotificationsNumber}");
+
+        if (currentNotificationsNumber <= 0)
+            return;
+
+        _notificationList.Clear();
+        Debug.Log("Clear List");
+
+        List<NotificationDTO> notificationDtos = new List<NotificationDTO>();
+        //use notification number instead of currentNotificationsNumber
+        //because what you receive is a HashMap with <int, dto>
+        for (int i = 1; i < _notificationNumber + 1; i++)
+        {
+            var key = new AndroidJavaObject("java.lang.Integer", i);
+            var androidDto = currentNotifications.Call<AndroidJavaObject>("get", key);
+
+            //add each android notification to a list
+            if (androidDto != null)
+            {
+                notificationDtos.Add(new NotificationDTO(i, androidDto));
+                Debug.Log($"Notification added with id : {i}");
+            }
+            else
+            {
+                Debug.LogWarning($"No notification found for index: {i}");
+            }
+        }
+
+        Debug.Log($"Total notifications added before sorting: {notificationDtos.Count}");
+        //reorder the list starting from the nearest scheduled
+        notificationDtos = notificationDtos.OrderBy(n => n.DurationInSeconds).ToList();
+
+        //rebuild the list already in the correct order
+        foreach (NotificationDTO notificationDto in notificationDtos)
+        {
+            _notificationList.AddItem(notificationDto);
+            Debug.Log($"Notification added to _notificationList: {notificationDto.DurationInSeconds}");
+        }
+
+        //restart list handler
+        _notificationList.Initialize(_notificationHandler);
+        Debug.Log("Notification list handler initialized");
     }
 
     void OnApplicationPause(bool pauseStatus)
@@ -50,8 +109,6 @@ public class NotificationHandler : AppStateListener
 #if UNITY_EDITOR
         DebugScheduleNotifications();
 #else
-
-
         try
         {
             _notificationList.Initialize(_notificationHandler);
@@ -61,7 +118,6 @@ public class NotificationHandler : AppStateListener
                 //the java method return the dto for the scheduled notification
                 var notificationDto = _notificationHandler.Call<AndroidJavaObject>("scheduleNotification", i, delay);
                 _notificationList.AddItem(i, notificationDto);
-                //_debugger.StartDebugging(_notificationHandler);
             }
 
         }
@@ -82,15 +138,14 @@ public class NotificationHandler : AppStateListener
             //the java method return the dto for the scheduled notification
             var notificationDto = new NotificationDTO(i)
             {
-                WorkUUID = "abcdef" + i,
+                WorkUUID = i.ToString(),
                 Status = NotificationStatus.Pending,
                 Title = "Title " + i,
                 Text = "Text " + i,
                 CreationTime = i,
                 SchedulationTime = i * (60 * 1000)
             };
-            _notificationList.AddItem(i, notificationDto);
-            //_debugger.StartDebugging(_notificationHandler);
+            _notificationList.AddItem(notificationDto);
         }
     }
 
@@ -123,7 +178,7 @@ public class NotificationHandler : AppStateListener
     public void TestSwitchNotification()
     {
         _notificationHandler.Call("switchNotificationSchedule", 1, 4);
-        _notificationList.SwitchItems(1, 4);
+        RefreshNotifications();
     }
 
     private void HandleNotificationData(int id, string text, string title)

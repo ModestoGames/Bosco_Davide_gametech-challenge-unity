@@ -4,24 +4,32 @@ using UnityEngine.UI;
 
 public class NotificationItemsHandler : MonoBehaviour
 {
+    [SerializeField] private NotificationHandler _notificationHandler;
     [SerializeField] private GameObject _scheduleNotificationButton;
     [SerializeField] private NotificationItem _itemPrefab;
     [SerializeField] private Transform _itemContainer;
-    [SerializeField] private RectTransform _layoutGroup;
+    [SerializeField] private VerticalLayoutGroup _layoutGroup;
 
     [Tooltip("How many fixedupdate steps are required for time text to update")]
     //used to avoid update text at every fixedupdate
     [SerializeField] private int _updateTimeInterval;
 
     private List<NotificationItem> _items = new List<NotificationItem>();
-    private AndroidJavaObject _notificationHandler;
+    private AndroidJavaObject _notificationService;
     private int _timer;
     private bool _initialized;
 
+    private List<int> _oldSorting;
+    private List<int> _newSorting;
 
-    public void Initialize(AndroidJavaObject notificationHandler)
+    private int _initialSiblingIndex;
+    private int _currentSiblingIndex;
+    private int _initialYPos;
+    private float _listSectionHeight;
+
+    public void Initialize(AndroidJavaObject notificationService)
     {
-        _notificationHandler = notificationHandler;
+        _notificationService = notificationService;
         _timer = _updateTimeInterval;
         _initialized = true;
     }
@@ -36,9 +44,9 @@ public class NotificationItemsHandler : MonoBehaviour
 
         if (_timer <= 0)
         {
-            var currentSystemTime = _notificationHandler.Call<long>("getCurrentSystemTime");
+            var currentSystemTime = _notificationService.Call<long>("getCurrentSystemTime");
 
-            foreach(var item in _items)
+            foreach (var item in _items)
                 item.UpdateTime(currentSystemTime);
         }
     }
@@ -49,54 +57,50 @@ public class NotificationItemsHandler : MonoBehaviour
         Debug.Log(dto);
         var item = Instantiate(_itemPrefab, _itemContainer);
         item.Initialize(dto, this);
+        item.gameObject.name = id.ToString();
         _items.Add(item);
-        LayoutRebuilder.ForceRebuildLayoutImmediate(_layoutGroup);
     }
 
-    public void AddItem(int id, NotificationDTO notificationDto)
+    public void AddItem(NotificationDTO notificationDto)
     {
         var item = Instantiate(_itemPrefab, _itemContainer);
         item.Initialize(notificationDto, this);
+        item.gameObject.name = notificationDto.WorkUUID;
         _items.Add(item);
-        LayoutRebuilder.ForceRebuildLayoutImmediate(_layoutGroup);
     }
 
+    //this method remove all the notifications from Unity and then from Android
     public void RemoveAll()
     {
-        for(int i = _items.Count -1; i >= 0; i--)
+        for (int i = _items.Count - 1; i >= 0; i--)
             _items[i].RemoveItem();
 
         Disable();
     }
 
+    //this method remove a single notification from Unity and then from Android
     public void RemoveItem(NotificationItem item)
     {
         _items.Remove(item);
-        _notificationHandler.Call("deleteScheduledNotification", item.Id);
+        _notificationService.Call("deleteScheduledNotification", item.Id);
 
         if (_items.Count <= 0)
             Disable();
     }
 
-    public void SwitchItems(int item1Id, int item2Id)
+    //this method remove notifications only from Unity.
+    //Use to refresh notification after a reschedule or application restart
+    public void Clear()
     {
-        item1Id--; item2Id-- ;
-        int index1 = _items[item1Id].transform.GetSiblingIndex();
-        Debug.Log("Index 1 is " + index1);
-        int index2 = _items[item2Id].transform.GetSiblingIndex();
-        Debug.Log("Index 2 is " + index2);
-        _items[item1Id].transform.SetSiblingIndex(index2);
-        _items[item2Id].transform.SetSiblingIndex(index1);
+        _initialized = false;
 
-        //switch schedulation times
-        var tempSchedulationTime = _items[item1Id].SchedulationTime;
-        _items[item1Id].SchedulationTime = _items[item2Id].SchedulationTime;
-        _items[item2Id].SchedulationTime = tempSchedulationTime;
+        if (_items.Count <= 0)
+            return;
 
-        //switch elements in list
-        var temp = _items[item1Id];
-        _items[item1Id] = _items[item2Id];
-        _items[item2Id] = temp;
+        for (int i = _items.Count - 1; i >= 0; i--)
+            Destroy(_items[i].gameObject);
+
+        _items = new List<NotificationItem>();
     }
 
     private void Disable()
@@ -104,5 +108,58 @@ public class NotificationItemsHandler : MonoBehaviour
         _items = new List<NotificationItem>();
         _scheduleNotificationButton.SetActive(true);
         gameObject.SetActive(false);
+    }
+
+    public void OnBeginDragItem(int draggableItemTransformIndex, float initialYPosition, float height)
+    {
+        //initialize the two sorting lists
+        _oldSorting = new List<int>();
+        _newSorting = new List<int>();
+
+        //create the list with the sorting before drag
+        foreach (Transform children in _itemContainer.transform)
+        {
+            int id = children.GetComponent<NotificationItem>().Id;
+            _oldSorting.Add(id);
+        }
+
+        //store the initial position
+        _initialSiblingIndex = draggableItemTransformIndex;
+        //get the height of a single element in layout
+        _listSectionHeight = _itemContainer.GetComponent<RectTransform>().sizeDelta.y / _items.Count;
+        
+    }
+
+    public void OnDragItem(Transform transform, float itemHeight)
+    {
+        float normalizedY = _listSectionHeight / 2f - (_itemContainer.GetChild(transform.GetSiblingIndex())
+            .GetComponent<RectTransform>().anchoredPosition.y + _layoutGroup.spacing);
+
+        int spaceIndex = Mathf.Clamp((int)(normalizedY / _listSectionHeight), 0, _items.Count);
+        
+        if(transform.GetSiblingIndex() != spaceIndex)
+            transform.SetSiblingIndex(spaceIndex);
+    }
+
+    public void OnDropItem()
+    {
+        LayoutRebuilder.ForceRebuildLayoutImmediate(_itemContainer.GetComponent<RectTransform>());
+        Canvas.ForceUpdateCanvases();
+
+        foreach (Transform children in _itemContainer.transform)
+        {
+            int id = children.GetComponent<NotificationItem>().Id;
+            _newSorting.Add(id);
+        }
+
+        if (!Utils.ListsSortingIsEqual(_oldSorting, _newSorting))
+        {
+            var oldSorting = _oldSorting.ToArray();
+            var newSorting = _newSorting.ToArray();
+
+            _notificationService.Call("setOldSorting", oldSorting);
+            _notificationService.Call("setNewSorting", newSorting); 
+            _notificationHandler.RefreshNotifications();
+        }
     }
 }

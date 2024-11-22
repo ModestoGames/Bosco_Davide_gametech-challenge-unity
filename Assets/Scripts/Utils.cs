@@ -1,10 +1,11 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using UnityEngine;
 
 public static class Utils
-    
+
 {
     public static int GetSDKLevel()
     {
@@ -99,5 +100,22 @@ public static class Utils
 
         // Stampa il risultato finale
         Debug.Log(sb.ToString());
+    }
+
+    //check if two lists of integer has the same values at each index
+    public static bool ListsSortingIsEqual(List<int> list1, List<int> list2)
+    {
+        bool result = true;
+
+        for (int i = 0; i < list1.Count; i++)
+        {
+            if (list1[i] != list2[i])
+            {
+                result = false;
+                break;
+            }
+        }
+
+        return result;
     }
 }
