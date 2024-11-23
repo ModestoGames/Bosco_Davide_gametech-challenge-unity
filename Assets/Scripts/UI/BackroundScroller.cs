@@ -3,6 +3,9 @@ using UnityEngine.UI;
 
 namespace com.modesto.notificationhandler
 {
+    /// <summary>
+    /// move RawImage texture at the specified speed
+    /// </summary>
     public class BackroundScroller : MonoBehaviour
     {
         [SerializeField] private RawImage _image;

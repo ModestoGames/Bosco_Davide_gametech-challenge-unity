@@ -2,44 +2,50 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
 
-public class Panel : MonoBehaviour
+namespace com.modesto.notificationhandler
 {
-    [Header("Graphic")]
-    [SerializeField] private UIItem _uiItem;
-    [Header("Secondary Button")]
-    [SerializeField] private bool _hasSecondaryButton;
-    [SerializeField] private GameObject _secondaryButton;
-    [Header("Events")]
-    [SerializeField] private UnityEvent _onMainButtonClick;
-    [SerializeField] private UnityEvent _onSecondaryButtonClick;
-
-    private void OnEnable()
+    /// <summary>
+    /// Base abstraction to handle a UIItem representing a popup panel 
+    /// </summary>
+    public class Panel : MonoBehaviour
     {
-        _secondaryButton.SetActive(_hasSecondaryButton);
-    }
+        [Header("Graphic")]
+        [SerializeField] private UIItem _uiItem;
+        [Header("Secondary Button")]
+        [SerializeField] private bool _hasSecondaryButton;
+        [SerializeField] private GameObject _secondaryButton;
+        [Header("Events")]
+        [SerializeField] private UnityEvent _onMainButtonClick;
+        [SerializeField] private UnityEvent _onSecondaryButtonClick;
 
-    public void ForceTurnOffSecondaryButton()
-    {
-        _hasSecondaryButton = false;
-    }
+        private void OnEnable()
+        {
+            _secondaryButton.SetActive(_hasSecondaryButton);
+        }
 
-    public void MainButtonClicked()
-    {
-        _onMainButtonClick?.Invoke();
-    }
+        public void ForceTurnOffSecondaryButton()
+        {
+            _hasSecondaryButton = false;
+        }
 
-    public void SecondaryButtonClicked()
-    {
-        _onSecondaryButtonClick?.Invoke();
-    }
+        public void MainButtonClicked()
+        {
+            _onMainButtonClick?.Invoke();
+        }
 
-    public void Show()
-    {
-        _uiItem.Show();
-    }
+        public void SecondaryButtonClicked()
+        {
+            _onSecondaryButtonClick?.Invoke();
+        }
 
-    public void Hide()
-    {
-        _uiItem.Hide();
+        public void Show()
+        {
+            _uiItem.Show();
+        }
+
+        public void Hide()
+        {
+            _uiItem.Hide();
+        }
     }
 }

@@ -1,34 +1,40 @@
 using UnityEngine;
 
-[RequireComponent (typeof(CanvasGroup))]
-public class CanvasGroupUIItem : UIItem
+namespace com.modesto.notificationhandler
 {
-    [Header("Graphic")]
-    [SerializeField] private CanvasGroup _canvasGroup;
-
-    [Header("Settings")]
-    [Range(0f, 1f)]
-    [SerializeField] private float _maxAlpha;
-    [SerializeField] private bool _interactableWhenEnabled;
-
-    public override void PerformShowAction()
+    /// <summary>
+    /// Implements UIItem with CanvasGroup
+    /// </summary>
+    [RequireComponent(typeof(CanvasGroup))]
+    public class CanvasGroupUIItem : UIItem
     {
-        _canvasGroup.alpha = _maxAlpha;
-        _canvasGroup.blocksRaycasts = true;
-        _canvasGroup.interactable = _interactableWhenEnabled;
-    }
+        [Header("Graphic")]
+        [SerializeField] private CanvasGroup _canvasGroup;
 
-    public override void OnBeforeShow()
-    {
-        base.OnBeforeShow();
-        _canvasGroup.enabled = true;
-    }
+        [Header("Settings")]
+        [Range(0f, 1f)]
+        [SerializeField] private float _maxAlpha;
+        [SerializeField] private bool _interactableWhenEnabled;
 
-    public override void PerformHideAction()
-    {
-        _canvasGroup.alpha = 0.0f;
-        _canvasGroup.blocksRaycasts = false;
-        _canvasGroup.interactable = false;
-        OnAfterHide();
+        public override void PerformShowAction()
+        {
+            _canvasGroup.alpha = _maxAlpha;
+            _canvasGroup.blocksRaycasts = true;
+            _canvasGroup.interactable = _interactableWhenEnabled;
+        }
+
+        public override void OnBeforeShow()
+        {
+            base.OnBeforeShow();
+            _canvasGroup.enabled = true;
+        }
+
+        public override void PerformHideAction()
+        {
+            _canvasGroup.alpha = 0.0f;
+            _canvasGroup.blocksRaycasts = false;
+            _canvasGroup.interactable = false;
+            OnAfterHide();
+        }
     }
 }

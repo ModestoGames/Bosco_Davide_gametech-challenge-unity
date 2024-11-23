@@ -218,8 +218,7 @@ MonoBehaviour:
   _notificationDetail: {fileID: 7916744481387087662}
   _notificationList: {fileID: 8987873395587604045}
   _notificationNumber: 5
-  _interval: 1
-  _intervalSeconds: 20
+  _intervalSeconds: 60
 --- !u!4 &161702667
 Transform:
   m_ObjectHideFlags: 0
@@ -428,7 +427,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
   m_Color: {r: 0.15686275, g: 0.15686275, b: 0.15686275, a: 1}
-  m_RaycastTarget: 0
+  m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -1710,7 +1709,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e6008e0973496ab4fadc905d28f06cc3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _enableLog: 1
+  _enableLog: 0
   _fps: 60
   _gameInitBehaviours:
   - {fileID: 2061497074}

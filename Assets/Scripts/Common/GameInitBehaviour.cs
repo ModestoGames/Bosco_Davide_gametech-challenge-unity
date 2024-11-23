@@ -1,8 +1,13 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-public abstract class GameInitBehaviour : MonoBehaviour
+namespace com.modesto.notificationhandler
 {
-    public abstract IEnumerator Initialize();
+    /// <summary>
+    /// Base class to pass to GameInitiator for app init handling
+    /// </summary>
+    public abstract class GameInitBehaviour : MonoBehaviour
+    {
+        public abstract IEnumerator Initialize();
+    }
 }

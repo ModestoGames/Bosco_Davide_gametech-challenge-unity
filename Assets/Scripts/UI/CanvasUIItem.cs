@@ -1,18 +1,25 @@
 using UnityEngine;
 
-[RequireComponent (typeof(Canvas))]
-public class CanvasUIItem : UIItem
+namespace com.modesto.notificationhandler
 {
-    [Header("Graphic")]
-    [SerializeField] private Canvas _canvas;
 
-    public override void PerformHideAction()
+    [RequireComponent(typeof(Canvas))]
+    public class CanvasUIItem : UIItem
     {
-        _canvas.enabled = false;
-    }
+        /// <summary>
+        /// Implements UIItem with Canvas
+        /// </summary>
+        [Header("Graphic")]
+        [SerializeField] private Canvas _canvas;
 
-    public override void PerformShowAction()
-    {
-        _canvas.enabled = true;
+        public override void PerformHideAction()
+        {
+            _canvas.enabled = false;
+        }
+
+        public override void PerformShowAction()
+        {
+            _canvas.enabled = true;
+        }
     }
 }

@@ -4,7 +4,7 @@ using UnityEngine;
 namespace com.modesto.notificationhandler
 {
     /// <summary>
-    /// Base class to implement components which updates based on application states.
+    /// Base class to implement components listening to application state changes.
     /// </summary>
     public abstract class AppStateListener : GameInitBehaviour
     {

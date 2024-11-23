@@ -1,25 +1,31 @@
 using UnityEngine;
 
-public abstract class UIItem : MonoBehaviour
+namespace com.modesto.notificationhandler
 {
-    public void Show()
+    /// <summary>
+    /// Base class to handle ui gameobjects with a hidden and visible state
+    /// </summary>
+    public abstract class UIItem : MonoBehaviour
     {
-        OnBeforeShow();
-        PerformShowAction();
+        public void Show()
+        {
+            OnBeforeShow();
+            PerformShowAction();
+        }
+
+        public abstract void PerformShowAction();
+
+        public void Hide()
+        {
+            OnBeforeHide();
+            PerformHideAction();
+        }
+
+        public abstract void PerformHideAction();
+
+        public virtual void OnBeforeShow() { }
+        public virtual void OnAfterShow() { }
+        public virtual void OnBeforeHide() { }
+        public virtual void OnAfterHide() { }
     }
-
-    public abstract void PerformShowAction();
-
-    public void Hide()
-    {
-        OnBeforeHide();
-        PerformHideAction();    
-    }
-
-    public abstract void PerformHideAction();
-
-    public virtual void OnBeforeShow() { }
-    public virtual void OnAfterShow() { }
-    public virtual void OnBeforeHide() { }
-    public virtual void OnAfterHide() { }
 }

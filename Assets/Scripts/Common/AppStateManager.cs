@@ -4,7 +4,7 @@ using System.Collections;
 namespace com.modesto.notificationhandler
 {
     /// <summary>
-    /// Keep track of current application state and send event to its listener when state change
+    /// Keep track of current application state and send event to its listener when state changes
     /// </summary>
     public class AppStateManager : GameInitBehaviour
     {
